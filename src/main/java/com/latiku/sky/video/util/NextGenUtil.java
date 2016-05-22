@@ -11,7 +11,7 @@ public class NextGenUtil {
 	public static boolean isNumeric(String str) {
 		boolean isNumeric = true;
 		try {
-			double d = Double.parseDouble(str);
+			Integer.parseInt(str);
 		} catch (Exception e) {
 			isNumeric = false;
 		}

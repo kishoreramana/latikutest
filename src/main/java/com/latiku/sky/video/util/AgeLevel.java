@@ -7,7 +7,7 @@ package com.latiku.sky.video.util;
  * @since 2016-05-21
  * */
 public enum AgeLevel {
-	U(0), PG(1);
+	U(4), PG(8);
 
 	private final int value;
 

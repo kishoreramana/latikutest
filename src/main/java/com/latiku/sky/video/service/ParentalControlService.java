@@ -19,8 +19,7 @@ public interface ParentalControlService {
 	 *            String containing the Parent Control Level Preference.
 	 * @param movieId
 	 *            String containing Movie Id.
-	 * @return String containing whether customer can watch the movie with
-	 *         parentalControlLevel
+	 * @return boolean True if customer can watch the movie else false.
 	 */
-	String movieWatchControlResponse(String parentalControlLevel, String movieId);
+	boolean movieWatchControlResponse(String parentalControlLevel, String movieId);
 }

@@ -24,67 +24,73 @@ public class ParentControlServiceImpl implements ParentalControlService {
 	}
 
 	@Override
-	public String movieWatchControlResponse(String parentalControlLevel,
-			String movieId) {
+	public boolean movieWatchControlResponse(String parentalControlLevel, String movieId) {
 
-		String movieWatchControlResponse = null;
-
-		String movieParentalControlLevel = null;
-
+		boolean movieWatchControlResponse = true;
 		int inputAgeLevel = 0;
 		int movieAgeLevel = 0;
+		String movieParentalControlLevel = null;
 
 		if (NextGenUtil.isNumeric(parentalControlLevel)) {
 			inputAgeLevel = Integer.valueOf(parentalControlLevel);
 		} else {
 			try {
-				inputAgeLevel = AgeLevel.valueOf(parentalControlLevel)
-						.getValue();
+				inputAgeLevel = AgeLevel.valueOf(parentalControlLevel).getValue();
 			} catch (IllegalArgumentException iae) {
-				movieWatchControlResponse = parentalControlLevel
-						+ " is not valid!";
+				movieWatchControlResponse = false;
+				// The below message will be logged for monitoring purpose.
+				System.out.println("The Parental Control Level Input : " + parentalControlLevel + ", is not valid!");
+				throw iae;
 			}
 		}
 
 		try {
-			movieParentalControlLevel = movieService
-					.getParentalControlLevel(movieId);
-		} catch (TechnicalFailureException e) {
-			movieWatchControlResponse = "Unfortunately there is a System Error. "
-					+ "Sorry you cannot watch the movie!!";
-		} catch (TitleNotFoundException e) {
-			movieWatchControlResponse = "The movie service cannot find the given movie "
-					+ movieId;
+			movieParentalControlLevel = movieService.getParentalControlLevel(movieId);
+		} catch (TechnicalFailureException tfe) {
+			movieWatchControlResponse = false;
+			// The below message will be logged for monitoring purpose.
+			System.out.println("Unfortunately there is a System Error. Sorry you cannot watch the movie!!");
+		} catch (TitleNotFoundException tnfe) {
+			movieWatchControlResponse = false;
+			// The below message will be logged for monitoring purpose.
+			System.out.println("The movie service cannot find the given movie " + movieId + "!!");
 		}
 
-		if (NextGenUtil.isNumeric(movieParentalControlLevel)) {
-			movieAgeLevel = Integer.valueOf(movieParentalControlLevel);
-		} else {
-			try {
-				movieAgeLevel = AgeLevel.valueOf(movieParentalControlLevel)
-						.getValue();
-			} catch (IllegalArgumentException iae) {
-				movieWatchControlResponse = "Unable to determine Parent Control Level for movie "
-						+ movieId;
-			}
-		}
+		// If there are no exceptions in the input argument or the movieservice
+		// response then process below logic.
+		if (movieWatchControlResponse) {
 
-		if (null == movieWatchControlResponse) {
-			if (this.isAbleToWatchMovie(inputAgeLevel, movieAgeLevel)) {
-				movieWatchControlResponse = "You can watch the movie "
-						+ movieId + "(" + movieParentalControlLevel + " )!!";
+			if (NextGenUtil.isNumeric(movieParentalControlLevel)) {
+				movieAgeLevel = Integer.valueOf(movieParentalControlLevel);
 			} else {
-				movieWatchControlResponse = "Sorry you cannot watch the movie "
-						+ movieId + "(" + movieParentalControlLevel + ")!!";
+				try {
+					movieAgeLevel = AgeLevel.valueOf(movieParentalControlLevel).getValue();
+				} catch (IllegalArgumentException iae) {
+					movieWatchControlResponse = false;
+					// The below message will be logged for monitoring purpose.
+					System.out.println("Unable to determine Parent Control Level for movie " + movieId + "!!");
+					throw iae;
+				}
 			}
+			
+			//Determining whether movie age level is less than or equal to input age level.
+			movieWatchControlResponse = this.isAbleToWatchMovie(inputAgeLevel, movieAgeLevel);
 		}
 
 		return movieWatchControlResponse;
 	}
 
+	/**
+	 * This method will determine if the movie service age level is less than or
+	 * equal to input age level to watch the movie.
+	 * 
+	 * @param inputAgeLevel
+	 *            Age level given as input by user.
+	 * @param movieAgeLevel
+	 *            Age level for the movie watch given by movie service.
+	 * @return
+	 */
 	private boolean isAbleToWatchMovie(int inputAgeLevel, int movieAgeLevel) {
-		boolean isAbleToWatchMovie = movieAgeLevel <= inputAgeLevel ? true
-				: false;
-		return isAbleToWatchMovie;
+		return movieAgeLevel <= inputAgeLevel ? true : false;
 	}
 }
