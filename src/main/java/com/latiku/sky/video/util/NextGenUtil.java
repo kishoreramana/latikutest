@@ -4,7 +4,7 @@ package com.latiku.sky.video.util;
  * 
  * @author Kishore Ramana
  * @version 1.0
- * @since 2016-05-21
+ * @since 2016-05-22
  * */
 public class NextGenUtil {
 
